@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LoginSystem.ModelView
+namespace LoginSystem.ViewModel
 {
     public class RegisterLoginModel
     {
         [Display(Name = "Nome", Description = "Nome e Sobrenome")]
         [StringLength(150, MinimumLength = 3, ErrorMessage = "A senha deve ter de 3 a 150 dígitos")]
-        [Required (ErrorMessage ="Preencha este campo")]
+        [Required(ErrorMessage = "Preencha este campo")]
         public string Name { get; set; }
 
         [Display(Name = "E-mail", Description = "E-mail de acesso")]
@@ -21,7 +21,7 @@ namespace LoginSystem.ModelView
 
         [Display(Name = "Senha", Description = "Senha de acesso")]
         [DataType(DataType.Password)]
-        [StringLength(20, MinimumLength = 8, ErrorMessage="A senha deve ter de 8 a 20 dígitos")]
+        [StringLength(20, MinimumLength = 8, ErrorMessage = "A senha deve ter de 8 a 20 dígitos")]
         [Required(ErrorMessage = "Preencha este campo")]
         public string Password { get; set; }
 

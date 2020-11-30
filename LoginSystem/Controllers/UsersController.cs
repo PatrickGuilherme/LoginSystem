@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LoginSystem.Data;
 using LoginSystem.Models;
-using LoginSystem.ModelView;
+using LoginSystem.ViewModel;
 
 namespace LoginSystem.Controllers
 {
@@ -27,16 +27,34 @@ namespace LoginSystem.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RegisterLoginModel(RegisterLoginModel RegisterLoginModel)
+        public IActionResult RegisterLoginModel(RegisterLoginModel registerLoginModel)
         {
+            
+            var user = new User();
+            
             if (ModelState.IsValid)
             {
+                Cryptography cryptography = new Cryptography(System.Security.Cryptography.MD5.Create());
 
+                if (cryptography.HashVerify(registerLoginModel.PasswordConfirm, registerLoginModel.Password))
+                {
+                    ModelState.AddModelError("Password", "A segurança da senha é baixa");
+                }
+                else if(user.VerifyPasswordStrong(registerLoginModel.Password) < 3)
+                {
+                    ModelState.AddModelError("Password", "A segurança da senha é baixa");
+                }
+                else
+                {
+                    user.Name = registerLoginModel.Name;
+                    user.Email = registerLoginModel.Email;
+                    user.Password = cryptography.HashGenerate(registerLoginModel.Password);
+                }
             }
-            RegisterLoginModel.Password = null;
-            RegisterLoginModel.PasswordConfirm = null;
-            return View(RegisterLoginModel);
+
+            registerLoginModel.Password = null;
+            registerLoginModel.PasswordConfirm = null;
+            return View(registerLoginModel);
         }
 
         // GET: Users
