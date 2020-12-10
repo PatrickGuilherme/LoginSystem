@@ -13,7 +13,7 @@ namespace LoginSystem.Models
         public string Email { get; set; }
         public string Password { get; set; }
         public DateTime BirthData { get; set; }
-        public string Genre { get; set; }
+        public char Genre { get; set; }
         public string PhoneNumber { get; set; }
 
         /// <summary>

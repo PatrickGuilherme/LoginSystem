@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace LoginSystem.Migrations
 {
-    public partial class initdb : Migration
+    public partial class initialize : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,9 +15,10 @@ namespace LoginSystem.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     BirthData = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Genre = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false)
+                    Genre = table.Column<string>(type: "nvarchar(1)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false)
                 },
                 constraints: table =>
                 {

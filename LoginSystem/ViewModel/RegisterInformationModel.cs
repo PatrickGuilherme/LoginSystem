@@ -15,9 +15,8 @@ namespace LoginSystem.ViewModel
         public DateTime BirthData { get; set; }
 
         [Display(Name = "Gênero", Description = "Gênero do usuário")]
-        [StringLength(1, MinimumLength = 1)]
         [Required(ErrorMessage = "Preencha este campo")]
-        public string Genre { get; set; }
+        public char Genre { get; set; }
 
         [Display(Name = "Número de celular", Description = "Número de celular do usuário")]
         [StringLength(15, MinimumLength = 5, ErrorMessage = "O número de telefone deve ter de 5 a 11 digitos")]

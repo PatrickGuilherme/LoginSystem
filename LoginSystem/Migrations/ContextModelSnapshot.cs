@@ -36,7 +36,6 @@ namespace LoginSystem.Migrations
 
                     b.Property<string>("Genre")
                         .IsRequired()
-                        .HasMaxLength(1)
                         .HasColumnType("nvarchar(1)");
 
                     b.Property<string>("Name")
@@ -46,8 +45,12 @@ namespace LoginSystem.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.HasKey("UserId")
                         .HasName("UserId");

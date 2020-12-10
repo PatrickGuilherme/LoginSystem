@@ -1,0 +1,41 @@
+﻿@model LoginSystem.ViewModel.RegisterInformationModel
+
+<h1>RegisterInformationModel</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Users" asp-action="RegisterInformationModel" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                @{
+                    if (ViewBag.MsgErro != null)
+                    {
+                        <label class="text-danger">@ViewBag.MsgErro</label>
+                    }
+                }
+            </div>
+            <div class="form-group">
+                <label asp-for="BirthData" class="control-label"></label>
+                <input type="date" asp-for="BirthData" class="form-control" />
+                <span asp-validation-for="BirthData" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input type="tel" asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" asp-for="Genre" value="M" checked="checked" />Homem</label>
+            <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" asp-for="Genre" value="F">Mulher</label>
+            <label style="display:inline-block"><input style="display:block; margin: 0 auto" type="radio" asp-for="Genre" value="O">Outros</label>
+
+            <div class="form-group">
+                <input type="submit" value="Cadastrar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

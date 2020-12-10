@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoginSystem.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20201129203300_initdb")]
-    partial class initdb
+    [Migration("20201210031026_initialize")]
+    partial class initialize
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -38,7 +38,6 @@ namespace LoginSystem.Migrations
 
                     b.Property<string>("Genre")
                         .IsRequired()
-                        .HasMaxLength(1)
                         .HasColumnType("nvarchar(1)");
 
                     b.Property<string>("Name")
@@ -48,8 +47,12 @@ namespace LoginSystem.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.HasKey("UserId")
                         .HasName("UserId");

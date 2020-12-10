@@ -9,7 +9,7 @@ namespace LoginSystem.Data
 {
     public class Context : DbContext
     {
-        public DbSet<User> Usuarios { get; set; }
+        public DbSet<User> Users { get; set; }
 
         public Context(DbContextOptions<Context> options) : base(options)
         {
@@ -29,11 +29,10 @@ namespace LoginSystem.Data
                     etd.Property(p => p.UserId).HasColumnType("int").ValueGeneratedOnAdd();
                     etd.Property(p => p.Name).IsRequired().HasMaxLength(150);
                     etd.Property(p => p.Email).IsRequired().HasMaxLength(250);
-                    etd.Property(p => p.Password).IsRequired().HasMaxLength(20);
+                    etd.Property(p => p.Password).IsRequired();
                     etd.Property(p => p.BirthData).IsRequired();
-                    etd.Property(p => p.Genre).IsRequired().HasMaxLength(1);
+                    etd.Property(p => p.Genre).IsRequired();
                     etd.Property(p => p.PhoneNumber).IsRequired().HasMaxLength(15);
-
                 }
             );
         }
