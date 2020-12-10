@@ -238,9 +238,9 @@ namespace LoginSystem.Controllers
         private bool UserEmailExists(string email)
         {
             //Verifica se o email já foi cadastrado
-            var searchEmail = _context.Users.Where(m => m.Email.ToUpper().Equals(email.ToUpper()));
-            if (searchEmail != null) return false;
-            return true;
+            User searchEmail = _context.Users.Where(m => m.Email.ToUpper().Equals(email.ToUpper())).FirstOrDefault();
+            if (searchEmail != null) return true;
+            return false;
         }
     }
 }
