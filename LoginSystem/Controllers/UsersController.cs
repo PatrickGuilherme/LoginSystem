@@ -9,6 +9,8 @@ using LoginSystem.Data;
 using LoginSystem.Models;
 using LoginSystem.ViewModel;
 using Newtonsoft.Json;
+using System.Net.Mail;
+using System.Net;
 
 namespace LoginSystem.Controllers
 {
@@ -74,7 +76,7 @@ namespace LoginSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RegisterInformationModel(RegisterInformationModel registerInformationModel)
+        public IActionResult RegisterInformationModel(RegisterInformationModel registerInformationModel)
         {
             User registerUser = JsonConvert.DeserializeObject<User>(TempData["RegisterUser"].ToString());
             if (registerUser == null) return RedirectToAction(nameof(RegisterLoginModel));
@@ -88,20 +90,61 @@ namespace LoginSystem.Controllers
                 registerUser.BirthData = registerInformationModel.BirthData;
                 registerUser.Genre = registerInformationModel.Genre;
                 registerUser.PhoneNumber = registerInformationModel.PhoneNumber;
-                _context.Add(registerUser);
-                try
-                {
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch
-                {
-                    ViewBag.MsgErro = "Um erro inesperado ocorreu, tente novamente";
-                }
+                
+                SendEmail(registerUser.Email, "Confirmar o cadastro", "Você criou uma conta no sistema de login .NET CORE, clique no link para confirmar a criação da conta", "https://localhost:44332/Users/EndUserRegister?id=");
+                TempData["RegisterUser"] = JsonConvert.SerializeObject(registerUser);
+                TempData["EmailUser"] = registerUser.Email;
+                return RedirectToAction(nameof(EmailConfirm));
             }
             TempData["RegisterUser"] = JsonConvert.SerializeObject(registerUser);
             return View();
         }
+        [HttpGet]
+        public IActionResult EmailConfirm() 
+        {
+            ViewBag.Msg = TempData["Erro"];
+            ViewBag.Email = TempData["EmailUser"];
+            return View();
+
+        }
+
+        [HttpGet]
+        public IActionResult EndUserRegister(string id) 
+        {
+            if (TempData["token"] != null && id != TempData["token"] as string)
+            {
+                User registerUser = JsonConvert.DeserializeObject<User>(TempData["RegisterUser"].ToString());
+                if (registerUser == null) return RedirectToAction(nameof(RegisterLoginModel));
+
+                return View(registerUser);
+            }
+            return RedirectToAction(nameof(RegisterLoginModel));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EndUserRegister(User user)
+        {
+            ViewBag.Msg = null; 
+            try
+            {
+                _context.Add(user);
+                await _context.SaveChangesAsync();
+                TempData["token"] = null;
+                return RedirectToAction(nameof(Index));
+            }
+            catch
+            {
+                ViewBag.Msg = "Um erro ocorreu, tente novamente";
+                return View();
+            }
+
+        }
+
+
+
+
+
+
 
         // GET: Users
         public async Task<IActionResult> Index()
@@ -241,6 +284,37 @@ namespace LoginSystem.Controllers
             User searchEmail = _context.Users.Where(m => m.Email.ToUpper().Equals(email.ToUpper())).FirstOrDefault();
             if (searchEmail != null) return true;
             return false;
+        }
+
+        public void SendEmail(string email, string title, string msg, string link)
+        {
+            try
+            {
+                string token = Guid.NewGuid().ToString();
+
+                MailMessage m = new MailMessage(new MailAddress("controlicsenai@gmail.com", title), new MailAddress(email));
+                m.Subject = "Confirmação de Email";
+                m.Body = string.Format(@"Olá usuário,
+                                            <br/> 
+                                            {0}
+                                            <br/>
+                                            <br/> 
+                                            <a href=""{1}{2}"" title=User Email Confirm>Link</a>",
+                                        msg, link, token);
+
+                TempData["token"] = token;
+
+                m.IsBodyHtml = true;
+                SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+                smtp.UseDefaultCredentials = false;
+                smtp.Credentials = new NetworkCredential("controlicsenai@gmail.com", "controlic4");
+                smtp.EnableSsl = true;
+                smtp.Send(m);
+            }
+            catch
+            {
+                TempData["Erro"] = "Um erro aconteceu. Tente novamente.";
+            }
         }
     }
 }
