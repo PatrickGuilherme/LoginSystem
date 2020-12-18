@@ -11,6 +11,8 @@ using LoginSystem.ViewModel;
 using Newtonsoft.Json;
 using System.Net.Mail;
 using System.Net;
+using Microsoft.AspNetCore.Http;
+using System.Security.Cryptography;
 
 namespace LoginSystem.Controllers
 {
@@ -18,17 +20,26 @@ namespace LoginSystem.Controllers
     {
         private readonly Context _context;
 
+        /// <summary>
+        /// Metódo construtor 
+        /// </summary>
         public UsersController(Context context)
         {
             _context = context;
         }
         
+        /// <summary>
+        /// [GET] Tela de cadastro parte 1 do usuário
+        /// </summary>
         [HttpGet]
         public IActionResult RegisterLoginModel()
         {
             return View();
         }
 
+        /// <summary>
+        /// [POST] Tela de cadastro parte 1 do usuário
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RegisterLoginModel(RegisterLoginModel registerLoginModel)
@@ -64,6 +75,9 @@ namespace LoginSystem.Controllers
             return View(registerLoginModel);
         }
 
+        /// <summary>
+        /// [GET] Tela de cadastro parte 2 do usuário
+        /// </summary>
         [HttpGet]
         public IActionResult RegisterInformationModel()
         {
@@ -74,6 +88,9 @@ namespace LoginSystem.Controllers
             return View();
         }
 
+        /// <summary>
+        /// [POST] Tela de cadastro parte 2 do usuário
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RegisterInformationModel(RegisterInformationModel registerInformationModel)
@@ -91,6 +108,7 @@ namespace LoginSystem.Controllers
                 registerUser.Genre = registerInformationModel.Genre;
                 registerUser.PhoneNumber = registerInformationModel.PhoneNumber;
                 
+                //Enviar e-mail pra confirmar email pra cadastro 
                 SendEmail(registerUser.Email, "Confirmar o cadastro", "Você criou uma conta no sistema de login .NET CORE, clique no link para confirmar a criação da conta", "https://localhost:44332/Users/EndUserRegister?id=");
                 TempData["RegisterUser"] = JsonConvert.SerializeObject(registerUser);
                 TempData["EmailUser"] = registerUser.Email;
@@ -99,6 +117,10 @@ namespace LoginSystem.Controllers
             TempData["RegisterUser"] = JsonConvert.SerializeObject(registerUser);
             return View();
         }
+        
+        /// <summary>
+        /// [GET] Tela de aviso de envio de email 
+        /// </summary>
         [HttpGet]
         public IActionResult EmailConfirm() 
         {
@@ -107,7 +129,10 @@ namespace LoginSystem.Controllers
             return View();
 
         }
-
+        
+        /// <summary>
+        /// [GET] Tela de finalizar cadastro
+        /// </summary>
         [HttpGet]
         public IActionResult EndUserRegister(string id) 
         {
@@ -121,6 +146,9 @@ namespace LoginSystem.Controllers
             return RedirectToAction(nameof(RegisterLoginModel));
         }
 
+        /// <summary>
+        /// [POST] Tela de finalizar cadastro
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> EndUserRegister(User user)
         {
@@ -130,6 +158,9 @@ namespace LoginSystem.Controllers
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 TempData["token"] = null;
+                HttpContext.Session.SetString("UserName", user.Name);
+                HttpContext.Session.SetString("UserEmail", user.Email);
+                HttpContext.Session.SetString("UserId", user.UserId.ToString());
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -140,13 +171,28 @@ namespace LoginSystem.Controllers
 
         }
 
+        public bool Login(string email, string password)
+        {
+            Cryptography cryptography = new Cryptography(MD5.Create());
+            string passwordCript = cryptography.HashGenerate(password);
+
+            User user = _context.Users.Where(p => p.Email.ToUpper().Equals(email.ToUpper()) && p.Password.Equals(passwordCript)).FirstOrDefault();
+            if (user == null) return false;
+            
+            HttpContext.Session.SetString("UserName", user.Name);
+            HttpContext.Session.SetString("UserEmail", user.Email);
+            HttpContext.Session.SetString("UserId", user.UserId.ToString());
+            return true;
+        }
+
+        public void Logout() 
+        {
+            HttpContext.Session.Remove("UserName");
+            HttpContext.Session.Remove("UserEmail");
+            HttpContext.Session.Remove("UserId");
+        }
 
 
-
-
-
-
-        // GET: Users
         public async Task<IActionResult> Index()
         {
             return View(await _context.Users.ToListAsync());
@@ -167,29 +213,6 @@ namespace LoginSystem.Controllers
                 return NotFound();
             }
 
-            return View(user);
-        }
-
-        // GET: Users/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Users/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,Name,Email,Password,BirthData,Genre")] User user)
-        {
-            if (ModelState.IsValid)
-            {
-                user.PhoneNumber = "987654321";
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
             return View(user);
         }
 
