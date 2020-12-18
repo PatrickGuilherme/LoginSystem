@@ -1,0 +1,48 @@
+﻿@model LoginSystem.Models.User
+
+@{
+    ViewData["Title"] = "EndUserRegister";
+}
+
+<h1>Finalizar cadastro</h1>
+
+<h4>User</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EndUserRegister">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <input type="hidden" asp-for="Name" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="hidden" asp-for="Email" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="hidden" asp-for="Password" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="hidden" asp-for="BirthData" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="hidden" asp-for="Genre" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="hidden" asp-for="PhoneNumber" class="form-control" />
+            </div>
+            <div class="form-group">
+                @{
+                    if(ViewBag.Msg != null)
+                    {
+                        <label class="text-danger">@ViewBag.Msg</label>
+                    }
+                }
+                <input type="submit" value="Confirmar email" class="btn btn-success" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

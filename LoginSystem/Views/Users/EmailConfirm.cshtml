@@ -1,0 +1,17 @@
+﻿@{
+    ViewBag.Title = "Confirme o endereço de email enviado";
+}
+<h2>@ViewBag.Title.</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        @if (ViewBag.Msg != null)
+        {
+            <label class="text-danger">@ViewBag.Msg</label>
+        }
+        else
+        {
+            <label>Cheque o e-mail enviado para o endereço @ViewBag.Email.</label>
+        }
+    </div>
+</div>  
