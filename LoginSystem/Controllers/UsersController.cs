@@ -13,6 +13,7 @@ using System.Net.Mail;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LoginSystem.Controllers
 {
@@ -168,7 +169,6 @@ namespace LoginSystem.Controllers
                 ViewBag.Msg = "Um erro ocorreu, tente novamente";
                 return View();
             }
-
         }
 
         public bool Login(string email, string password)
@@ -192,6 +192,14 @@ namespace LoginSystem.Controllers
             HttpContext.Session.Remove("UserId");
         }
 
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult UserProfile() 
+        {
+            User user = _context.Users.Find(HttpContext.Session.GetString("UserId"));
+            return View(user);
+        }
 
         public async Task<IActionResult> Index()
         {
