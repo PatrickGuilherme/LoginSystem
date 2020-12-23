@@ -35,6 +35,7 @@ namespace LoginSystem.Controllers
         [HttpGet]
         public IActionResult RegisterLoginModel()
         {
+            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile)); 
             return View();
         }
 
@@ -82,6 +83,8 @@ namespace LoginSystem.Controllers
         [HttpGet]
         public IActionResult RegisterInformationModel()
         {
+            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
+
             var registerUser = JsonConvert.DeserializeObject<User>(TempData["RegisterUser"].ToString());
             if (registerUser == null) return RedirectToAction(nameof(RegisterLoginModel));
             TempData["RegisterUser"] = JsonConvert.SerializeObject(registerUser);
@@ -125,6 +128,8 @@ namespace LoginSystem.Controllers
         [HttpGet]
         public IActionResult EmailConfirm() 
         {
+            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
+
             ViewBag.Msg = TempData["Erro"];
             ViewBag.Email = TempData["EmailUser"];
             return View();
@@ -137,6 +142,8 @@ namespace LoginSystem.Controllers
         [HttpGet]
         public IActionResult EndUserRegister(string id) 
         {
+            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
+
             if (TempData["token"] != null && id != TempData["token"] as string)
             {
                 User registerUser = JsonConvert.DeserializeObject<User>(TempData["RegisterUser"].ToString());
@@ -171,33 +178,35 @@ namespace LoginSystem.Controllers
             }
         }
 
-        public bool Login(string email, string password)
+        [HttpGet]
+        public IActionResult UserLogin()
         {
-            Cryptography cryptography = new Cryptography(MD5.Create());
-            string passwordCript = cryptography.HashGenerate(password);
-
-            User user = _context.Users.Where(p => p.Email.ToUpper().Equals(email.ToUpper()) && p.Password.Equals(passwordCript)).FirstOrDefault();
-            if (user == null) return false;
-            
-            HttpContext.Session.SetString("UserName", user.Name);
-            HttpContext.Session.SetString("UserEmail", user.Email);
-            HttpContext.Session.SetString("UserId", user.UserId.ToString());
-            return true;
+            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
+            return View();
         }
 
-        public void Logout() 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UserLogin(LoginModel loginModel) 
         {
-            HttpContext.Session.Remove("UserName");
-            HttpContext.Session.Remove("UserEmail");
-            HttpContext.Session.Remove("UserId");
+            ViewBag.Erro = null;
+            if (ModelState.IsValid)
+            {
+                if (Login(loginModel.Email, loginModel.Password))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            ViewBag.Erro = "E-mail ou senha incorretos";
+            return View();
         }
 
-
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         public IActionResult UserProfile() 
         {
-            User user = _context.Users.Find(HttpContext.Session.GetString("UserId"));
+            int id = Int32.Parse(HttpContext.Session.GetString("UserId"));
+            User user = _context.Users.Find(id);
             return View(user);
         }
 
@@ -346,6 +355,27 @@ namespace LoginSystem.Controllers
             {
                 TempData["Erro"] = "Um erro aconteceu. Tente novamente.";
             }
+        }
+
+        public bool Login(string email, string password)
+        {
+            Cryptography cryptography = new Cryptography(MD5.Create());
+            string passwordCript = cryptography.HashGenerate(password);
+
+            User user = _context.Users.Where(p => p.Email.ToUpper().Equals(email.ToUpper()) && p.Password.Equals(passwordCript)).FirstOrDefault();
+            if (user == null) return false;
+
+            HttpContext.Session.SetString("UserName", user.Name);
+            HttpContext.Session.SetString("UserEmail", user.Email);
+            HttpContext.Session.SetString("UserId", user.UserId.ToString());
+            return true;
+        }
+
+        public void Logout()
+        {
+            HttpContext.Session.Remove("UserName");
+            HttpContext.Session.Remove("UserEmail");
+            HttpContext.Session.Remove("UserId");
         }
     }
 }
