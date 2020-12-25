@@ -158,6 +158,7 @@ namespace LoginSystem.Controllers
         /// [POST] Tela de finalizar cadastro
         /// </summary>
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EndUserRegister(User user)
         {
             ViewBag.Msg = null; 
@@ -166,9 +167,7 @@ namespace LoginSystem.Controllers
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 TempData["token"] = null;
-                HttpContext.Session.SetString("UserName", user.Name);
-                HttpContext.Session.SetString("UserEmail", user.Email);
-                HttpContext.Session.SetString("UserId", user.UserId.ToString());
+                StartSessionLogin(user);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -365,9 +364,7 @@ namespace LoginSystem.Controllers
             User user = _context.Users.Where(p => p.Email.ToUpper().Equals(email.ToUpper()) && p.Password.Equals(passwordCript)).FirstOrDefault();
             if (user == null) return false;
 
-            HttpContext.Session.SetString("UserName", user.Name);
-            HttpContext.Session.SetString("UserEmail", user.Email);
-            HttpContext.Session.SetString("UserId", user.UserId.ToString());
+            StartSessionLogin(user);
             return true;
         }
 
@@ -376,6 +373,13 @@ namespace LoginSystem.Controllers
             HttpContext.Session.Remove("UserName");
             HttpContext.Session.Remove("UserEmail");
             HttpContext.Session.Remove("UserId");
+        }
+
+        private void StartSessionLogin(User user)
+        {
+            HttpContext.Session.SetString("UserName", user.Name);
+            HttpContext.Session.SetString("UserEmail", user.Email);
+            HttpContext.Session.SetString("UserId", user.UserId.ToString());
         }
     }
 }
