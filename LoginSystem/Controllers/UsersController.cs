@@ -40,6 +40,77 @@ namespace LoginSystem.Controllers
         }
 
         /// <summary>
+        /// [GET] Tela de cadastro parte 2 do usuário
+        /// </summary>
+        [HttpGet]
+        public IActionResult RegisterInformationModel()
+        {
+            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
+            if (TempData["RegisterUser"] == null) return RedirectToAction(nameof(UserLogin));
+
+            var registerUser = JsonConvert.DeserializeObject<User>(TempData["RegisterUser"].ToString());
+            if (registerUser == null) return RedirectToAction(nameof(RegisterLoginModel));
+            TempData["RegisterUser"] = JsonConvert.SerializeObject(registerUser);
+
+            return View();
+        }
+
+        /// <summary>
+        /// [GET] Tela de aviso de envio de email 
+        /// </summary>
+        [HttpGet]
+        public IActionResult EmailConfirm()
+        {
+            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
+            if (TempData["RegisterUser"] == null) return RedirectToAction(nameof(UserLogin));
+
+            ViewBag.Msg = TempData["Erro"];
+            ViewBag.Email = TempData["EmailUser"];
+            return View();
+
+        }
+
+        /// <summary>
+        /// [GET] Tela de finalizar cadastro
+        /// </summary>
+        [HttpGet]
+        public IActionResult EndUserRegister(string id)
+        {
+            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
+
+            if (TempData["token"] != null && id == TempData["token"] as string)
+            {
+                User registerUser = JsonConvert.DeserializeObject<User>(TempData["RegisterUser"].ToString());
+                if (registerUser == null) return RedirectToAction(nameof(RegisterLoginModel));
+
+                return View(registerUser);
+            }
+            return RedirectToAction(nameof(UserLogin));
+        }
+
+        /// <summary>
+        /// [GET] Tela de login de usuário
+        /// </summary>
+        [HttpGet]
+        public IActionResult UserLogin()
+        {
+            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
+            return View();
+        }
+
+        /// <summary>
+        /// [GET] Tela de dados do usuário logado
+        /// </summary>
+        [HttpGet]
+        public IActionResult UserProfile()
+        {
+            if (String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserLogin));
+            int id = Int32.Parse(HttpContext.Session.GetString("UserId"));
+            User user = _context.Users.Find(id);
+            return View(user);
+        }
+
+        /// <summary>
         /// [POST] Tela de cadastro parte 1 do usuário
         /// </summary>
         [HttpPost]
@@ -78,21 +149,6 @@ namespace LoginSystem.Controllers
         }
 
         /// <summary>
-        /// [GET] Tela de cadastro parte 2 do usuário
-        /// </summary>
-        [HttpGet]
-        public IActionResult RegisterInformationModel()
-        {
-            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
-
-            var registerUser = JsonConvert.DeserializeObject<User>(TempData["RegisterUser"].ToString());
-            if (registerUser == null) return RedirectToAction(nameof(RegisterLoginModel));
-            TempData["RegisterUser"] = JsonConvert.SerializeObject(registerUser);
-
-            return View();
-        }
-
-        /// <summary>
         /// [POST] Tela de cadastro parte 2 do usuário
         /// </summary>
         [HttpPost]
@@ -123,41 +179,10 @@ namespace LoginSystem.Controllers
         }
         
         /// <summary>
-        /// [GET] Tela de aviso de envio de email 
-        /// </summary>
-        [HttpGet]
-        public IActionResult EmailConfirm() 
-        {
-            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
-
-            ViewBag.Msg = TempData["Erro"];
-            ViewBag.Email = TempData["EmailUser"];
-            return View();
-
-        }
-        
-        /// <summary>
-        /// [GET] Tela de finalizar cadastro
-        /// </summary>
-        [HttpGet]
-        public IActionResult EndUserRegister(string id) 
-        {
-            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
-
-            if (TempData["token"] != null && id != TempData["token"] as string)
-            {
-                User registerUser = JsonConvert.DeserializeObject<User>(TempData["RegisterUser"].ToString());
-                if (registerUser == null) return RedirectToAction(nameof(RegisterLoginModel));
-
-                return View(registerUser);
-            }
-            return RedirectToAction(nameof(RegisterLoginModel));
-        }
-
-        /// <summary>
         /// [POST] Tela de finalizar cadastro
         /// </summary>
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EndUserRegister(User user)
         {
             ViewBag.Msg = null; 
@@ -166,10 +191,8 @@ namespace LoginSystem.Controllers
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 TempData["token"] = null;
-                HttpContext.Session.SetString("UserName", user.Name);
-                HttpContext.Session.SetString("UserEmail", user.Email);
-                HttpContext.Session.SetString("UserId", user.UserId.ToString());
-                return RedirectToAction(nameof(Index));
+                StartSessionLogin(user);
+                return RedirectToAction(nameof(UserProfile));
             }
             catch
             {
@@ -178,13 +201,9 @@ namespace LoginSystem.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult UserLogin()
-        {
-            if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
-            return View();
-        }
-
+        /// <summary>
+        /// [POST] Tela de login de usuário
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult UserLogin(LoginModel loginModel) 
@@ -194,21 +213,15 @@ namespace LoginSystem.Controllers
             {
                 if (Login(loginModel.Email, loginModel.Password))
                 {
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(UserProfile));
                 }
             }
             ViewBag.Erro = "E-mail ou senha incorretos";
             return View();
         }
 
-        //[Authorize]
-        [HttpGet]
-        public IActionResult UserProfile() 
-        {
-            int id = Int32.Parse(HttpContext.Session.GetString("UserId"));
-            User user = _context.Users.Find(id);
-            return View(user);
-        }
+
+
 
         public async Task<IActionResult> Index()
         {
@@ -365,9 +378,7 @@ namespace LoginSystem.Controllers
             User user = _context.Users.Where(p => p.Email.ToUpper().Equals(email.ToUpper()) && p.Password.Equals(passwordCript)).FirstOrDefault();
             if (user == null) return false;
 
-            HttpContext.Session.SetString("UserName", user.Name);
-            HttpContext.Session.SetString("UserEmail", user.Email);
-            HttpContext.Session.SetString("UserId", user.UserId.ToString());
+            StartSessionLogin(user);
             return true;
         }
 
@@ -376,6 +387,13 @@ namespace LoginSystem.Controllers
             HttpContext.Session.Remove("UserName");
             HttpContext.Session.Remove("UserEmail");
             HttpContext.Session.Remove("UserId");
+        }
+
+        private void StartSessionLogin(User user)
+        {
+            HttpContext.Session.SetString("UserName", user.Name);
+            HttpContext.Session.SetString("UserEmail", user.Email);
+            HttpContext.Session.SetString("UserId", user.UserId.ToString());
         }
     }
 }
