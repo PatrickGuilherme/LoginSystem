@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+
+<html lang="pt-br">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link rel="stylesheet" href="~/css/siteNotLogin.css"/>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-7 col-md-4 col-md-offset-4">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+    
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
