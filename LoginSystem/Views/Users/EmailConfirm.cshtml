@@ -1,17 +1,21 @@
 ﻿@{
+    Layout = "_LayoutNotLogin"; 
+    ViewData["Title"] = "Cadastro III";
     ViewBag.Title = "Confirme o endereço de email enviado";
-}
-<h2>@ViewBag.Title.</h2>
 
-<div class="row">
-    <div class="col-md-8">
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div class="account-wall">
+    <div class="text-center">
         @if (ViewBag.Msg != null)
         {
             <label class="text-danger">@ViewBag.Msg</label>
         }
         else
         {
-            <label>Cheque o e-mail enviado para o endereço @ViewBag.Email.</label>
+            <label>Cheque o e-mail enviado para o endereço <strong>@ViewBag.Email</strong></label>
         }
     </div>
-</div>  
+</div>
