@@ -2,7 +2,7 @@
 
 @{
     Layout = "_LayoutNotLogin";
-    ViewData["Title"] = "Cadastro I";
+    ViewData["Title"] = "Cadastro II";
 }
 
 <form asp-controller="Users" asp-action="RegisterInformationModel" method="post" enctype="multipart/form-data">
@@ -10,13 +10,6 @@
         <div class="form-group title">
             <h1 class="text-center">Cadastro de usuário</h1>
             <h5 class="text-center">Insira suas informações pessoais</h5>
-        </div>
-
-        <div class="form-group divSpaceMargin">
-            @if (ViewBag.Erro != null)
-            {
-                <div class="msgErro">@ViewBag.Erro</div>
-            }
         </div>
 
         <div class="form-group divSpaceMargin">
