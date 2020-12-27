@@ -66,8 +66,8 @@ namespace LoginSystem.Controllers
 
             ViewBag.Msg = TempData["Erro"];
             ViewBag.Email = TempData["EmailUser"];
+            TempData["RegisterUser"] = JsonConvert.SerializeObject(JsonConvert.DeserializeObject<User>(TempData["RegisterUser"].ToString()));
             return View();
-
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace LoginSystem.Controllers
         {
             if (!String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserProfile));
 
-            if (TempData["token"] != null && id == TempData["token"] as string)
+            if (TempData["token"] != null && id.Equals(TempData["token"].ToString()))
             {
                 User registerUser = JsonConvert.DeserializeObject<User>(TempData["RegisterUser"].ToString());
                 if (registerUser == null) return RedirectToAction(nameof(RegisterLoginModel));
@@ -161,7 +161,6 @@ namespace LoginSystem.Controllers
             // Verifica se a data de aniversário é inválida
             if (registerInformationModel.BirthData >= DateTime.Now) ModelState.AddModelError("BirthData", "A data de nascimento é inválida");
 
-            ViewBag.MsgErro = null;
             if (ModelState.IsValid)
             {
                 registerUser.BirthData = registerInformationModel.BirthData;
@@ -215,8 +214,8 @@ namespace LoginSystem.Controllers
                 {
                     return RedirectToAction(nameof(UserProfile));
                 }
+                ViewBag.Erro = "E-mail ou senha incorretos";
             }
-            ViewBag.Erro = "E-mail ou senha incorretos";
             return View();
         }
 
