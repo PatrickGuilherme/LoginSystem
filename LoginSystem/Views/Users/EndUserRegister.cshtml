@@ -1,47 +1,36 @@
 ﻿@model LoginSystem.Models.User
 
 @{
-    ViewData["Title"] = "EndUserRegister";
+    Layout = "_LayoutNotLogin";
+    ViewData["Title"] = "Cadastro IV";
+
 }
 
-<h1>Finalizar cadastro</h1>
 
-<h4>User</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="EndUserRegister">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <input type="hidden" asp-for="Name" class="form-control" />
-            </div>
-            <div class="form-group">
-                <input type="hidden" asp-for="Email" class="form-control" />
-            </div>
-            <div class="form-group">
-                <input type="hidden" asp-for="Password" class="form-control" />
-            </div>
-            <div class="form-group">
-                <input type="hidden" asp-for="BirthData" class="form-control" />
-            </div>
-            <div class="form-group">
-                <input type="hidden" asp-for="Genre" class="form-control" />
-            </div>
-            <div class="form-group">
-                <input type="hidden" asp-for="PhoneNumber" class="form-control" />
-            </div>
-            <div class="form-group">
-                @{
-                    if(ViewBag.Msg != null)
-                    {
-                        <label class="text-danger">@ViewBag.Msg</label>
-                    }
-                }
-                <input type="submit" value="Confirmar email" class="btn btn-success" />
-            </div>
-        </form>
+<form asp-action="EndUserRegister">
+    <div class="account-wall">
+        <div class="form-group title">
+            <h1 class="text-center">Cadastro de usuário</h1>
+            <h5 class="text-center">Confirme o endereço de e-mail para concluir</h5>
+        </div>
+        <input type="hidden" asp-for="Name" class="form-control" />
+        <input type="hidden" asp-for="Email" class="form-control" />
+        <input type="hidden" asp-for="Password" class="form-control" />
+        <input type="hidden" asp-for="BirthData" class="form-control" />
+        <input type="hidden" asp-for="Genre" class="form-control" />
+        <input type="hidden" asp-for="PhoneNumber" class="form-control" />
+
+        <div class="form-group divSpaceMargin">
+            @if (ViewBag.Msg != null)
+            {
+                <div class="msgErro">@ViewBag.Msg</div>
+            }
+        </div>
+        <div class="divSpaceMargin">
+            <input type="submit" value="Confirmar email" class="btn btn-block btn-success" />
+        </div>
     </div>
-</div>
+</form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
