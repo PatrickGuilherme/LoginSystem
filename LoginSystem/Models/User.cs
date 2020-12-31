@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -9,11 +10,27 @@ namespace LoginSystem.Models
     public class User
     {
         public int UserId { get; set; }
+
+        [Display(Name = "Nome", Description = "Nome e Sobrenome")]
+        [StringLength(150, MinimumLength = 3, ErrorMessage = "A senha deve ter de 3 a 150 dígitos")]
+        [Required(ErrorMessage = "Preencha este campo")]
         public string Name { get; set; }
+        
         public string Email { get; set; }
+        
         public string Password { get; set; }
+        
+        [Display(Name = "Data de nascimento", Description = "Data de nascimento do usuário")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
+        [Required(ErrorMessage = "Preencha este campo")]
         public DateTime BirthData { get; set; }
+        
         public char Genre { get; set; }
+
+        [Display(Name = "Número de celular", Description = "Número de celular do usuário")]
+        [StringLength(15, MinimumLength = 5, ErrorMessage = "O número de telefone deve ter de 5 a 11 digitos")]
+        [Required(ErrorMessage = "Preencha este campo")]
         public string PhoneNumber { get; set; }
 
         /// <summary>
