@@ -109,6 +109,70 @@ namespace LoginSystem.Controllers
             User user = _context.Users.Find(id);
             return View(user);
         }
+        
+        /// <summary>
+        /// [GET] Editar usuário
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> UserEdit(int? id)
+        {
+            if (String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserLogin));
+            if (id == null)
+            {
+                return NotFound();
+            }
+            
+            //Se tentar usar id de outro usuario redireciona pro usuario logado
+            if(id.ToString() != HttpContext.Session.GetString("UserId").ToString()) 
+            {
+                int? idFind = Int32.Parse(HttpContext.Session.GetString("UserId").ToString());
+                return View(idFind);
+            }
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return View(user);
+        }
+
+        /// <summary>
+        /// [POST] Editar usuário
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UserEdit(int id, User user)
+        {
+            if (id != user.UserId)
+            {
+                return NotFound();
+            }
+            if (user.BirthData >= DateTime.Now) ModelState.AddModelError("BirthData", "A data de nascimento é inválida");
+            ViewBag.msg = null;
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(UserProfile));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    ViewBag.msg = "Um erro inesperado ocorreu, tente novamente";
+                    if (!UserExists(user.UserId))
+                    {
+                        return NotFound();
+                    }
+                }
+            }
+            return View(user);
+        }
+
+
+
+
 
         /// <summary>
         /// [POST] Tela de cadastro parte 1 do usuário
@@ -222,6 +286,7 @@ namespace LoginSystem.Controllers
 
 
 
+
         public async Task<IActionResult> Index()
         {
             return View(await _context.Users.ToListAsync());
@@ -330,6 +395,10 @@ namespace LoginSystem.Controllers
             return _context.Users.Any(e => e.UserId == id);
         }
 
+        /// <summary>
+        /// Verifica se um email já esta cadastrado
+        /// </summary>
+        /// <param name="email">email a ser verificado</param>
         private bool UserEmailExists(string email)
         {
             //Verifica se o email já foi cadastrado
@@ -338,6 +407,13 @@ namespace LoginSystem.Controllers
             return false;
         }
 
+        /// <summary>
+        /// Envia email pro usuário
+        /// </summary>
+        /// <param name="email">E-mail pro remetente</param>
+        /// <param name="title">Título do e-mail</param>
+        /// <param name="msg">Mensagem do e-mail</param>
+        /// <param name="link">Link de recuperação do e-mail</param>
         public void SendEmail(string email, string title, string msg, string link)
         {
             try
@@ -369,6 +445,9 @@ namespace LoginSystem.Controllers
             }
         }
 
+        /// <summary>
+        /// Efetua o login do usuário
+        /// </summary>
         public bool Login(string email, string password)
         {
             Cryptography cryptography = new Cryptography(MD5.Create());
@@ -381,6 +460,9 @@ namespace LoginSystem.Controllers
             return true;
         }
 
+        /// <summary>
+        /// Deslogado o usuário - Remove as sessions existentes
+        /// </summary>
         public void Logout()
         {
             HttpContext.Session.Remove("UserName");
@@ -388,6 +470,9 @@ namespace LoginSystem.Controllers
             HttpContext.Session.Remove("UserId");
         }
 
+        /// <summary>
+        /// Inicia a session
+        /// </summary>
         private void StartSessionLogin(User user)
         {
             HttpContext.Session.SetString("UserName", user.Name);
