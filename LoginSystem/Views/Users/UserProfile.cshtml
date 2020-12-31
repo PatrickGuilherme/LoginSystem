@@ -1,50 +1,49 @@
 ﻿@model LoginSystem.Models.User
 
-<h1>UserProfile</h1>
+@{
+    Layout = "_LayoutNotLogin";
+    ViewData["Title"] = "Usuário Logado";
+}
 
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Password)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Password)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BirthData)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BirthData)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Genre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Genre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhoneNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhoneNumber)
-        </dd>
-    </dl>
+<div class="account-wall">
+    <div class="form-group title">
+        <h1 class="text-center">Usuário logado</h1>
+        <h5 class="text-center">Bem vindo @Model.Name</h5>
+    </div>
+    <div class="form-group divSpaceMargin">
+        <label class="control-label">Nome</label>
+        <p><span class="form-text">@Model.Name</span></p>
+    </div>
+    <div class="form-group divSpaceMargin">
+        <label class="control-label">E-mail</label>
+        <p><span class="form-text">@Model.Email</span></p>
+    </div>
+    <div class="form-group divSpaceMargin">
+        <label class="control-label">Data Nascimento</label>
+        <p><span class="form-text">@Model.BirthData.ToString("dd/MM/yyyy")</span></p>
+    </div>
+    <div class="form-group divSpaceMargin">
+        <label class="control-label">Gênero</label>
+        @if (Model.Genre == 'M')
+        {
+            <p><span class="form-text">Masculino</span></p>
+        }
+        else if (Model.Genre == 'F')
+        {
+            <p><span class="form-text">Feminino</span></p>
+        }
+        else
+        {
+            <p><span class="form-text">Outro</span></p>
+        }
+    </div>
+    <div class="form-group divSpaceMargin">
+        <label class="control-label">Telefone</label>
+        <p><span class="form-text">@Model.PhoneNumber</span></p>
+    </div>
+    <div class="form-group divSpaceMargin">
+        <a class="btn btn-info" asp-action="UserEdit" asp-route-id="@Model.UserId">Editar</a>
+        <a class="btn btn-danger" asp-action="">Deslogar</a>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.UserId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
