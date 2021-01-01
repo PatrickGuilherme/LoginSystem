@@ -137,6 +137,75 @@ namespace LoginSystem.Controllers
             return View(user);
         }
 
+
+        /// <summary>
+        /// [GET] Edição de senha de acesso
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> UserPasswordEdit(int? id)
+        {
+            if (String.IsNullOrEmpty(HttpContext.Session.GetString("UserId"))) return RedirectToAction(nameof(UserLogin));
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            //Se tentar usar id de outro usuario redireciona pro usuario logado
+            if (id.ToString() != HttpContext.Session.GetString("UserId").ToString())
+            {
+                int? idFind = Int32.Parse(HttpContext.Session.GetString("UserId").ToString());
+                return View(idFind);
+            }
+
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            PasswordEditModel passwordEditModel = new PasswordEditModel();
+            passwordEditModel.UserId = user.UserId;
+            return View(passwordEditModel);
+        }
+
+        /// <summary>
+        /// [POT] Edição de senha de acesso
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> UserPasswordEdit(int id, PasswordEditModel passwordEditModel)
+        {
+            if (id != passwordEditModel.UserId)
+            {
+                return NotFound();
+            }
+
+            ViewBag.msg = null;
+            if (ModelState.IsValid)
+            {
+                Cryptography cryptography = new Cryptography(MD5.Create());
+
+                var user = _context.Users.Find(id);
+                user.Password = cryptography.HashGenerate(passwordEditModel.Password);
+                try
+                {
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(UserProfile));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    ViewBag.msg = "Um erro inesperado ocorreu, tente novamente";
+                    if (!UserExists(user.UserId))
+                    {
+                        return NotFound();
+                    }
+                }
+            }
+            return View(passwordEditModel);
+        }
+
+
+
         /// <summary>
         /// [POST] Editar usuário
         /// </summary>
@@ -169,10 +238,6 @@ namespace LoginSystem.Controllers
             }
             return View(user);
         }
-
-
-
-
 
         /// <summary>
         /// [POST] Tela de cadastro parte 1 do usuário
