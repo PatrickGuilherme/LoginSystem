@@ -21,6 +21,13 @@
     border-radius: 5px;
 }
 
+.msgSuccess {
+    background-color: #5CB85C;
+    color: #2d8b2d;
+    padding: 8px;
+    border-radius: 5px;
+}
+
 .btnRegister {
     border: 1px solid #5CB85C;
     text-decoration: none;
